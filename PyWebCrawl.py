@@ -37,6 +37,9 @@ class PyWebCrawl:
 
         # a set of visited url
         self.visited_urls = set()
+        
+        # add list of blacklisted pages or words to avoid spidering them
+        self.lst_blacklist = ['..', 'mailto']
 
     def crawl(self):
         # process urls one by one until we exhaust the queue
@@ -69,10 +72,16 @@ class PyWebCrawl:
             soup = BeautifulSoup(response.text, "lxml")
 
             for link in soup.find_all("a"):
+                # bool contains blacklist
+                bool_contains_blacklist = False
+            
                 # extract link url from the anchor
                 anchor = link.attrs["href"] if "href" in link.attrs else ""
-
-                if ".." in anchor:
+                
+                for blacklisted in self.lst_blacklist:
+                    if blacklisted in anchor:
+                        bool_contains_blacklist = True
+                if bool_contains_blacklist:
                     continue
                 if anchor.startswith("/"):
                     local_link = base_url + anchor
