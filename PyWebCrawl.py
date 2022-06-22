@@ -18,6 +18,10 @@ class PyWebCrawl:
         self.counter = 0
 
         # init url from param
+        if not start_url.endswith("/"):  # check if ends with a slash or not, if not, then add one
+            start_url = start_url + "/"
+        if not start_url.startswith("https://") and not start_url.startswith("http://"):
+            start_url = "http://" + start_url
         self.url = start_url
 
         # a queue of urls to be crawled next
@@ -39,7 +43,7 @@ class PyWebCrawl:
         self.visited_urls = set()
         
         # add list of blacklisted pages or words to avoid spidering them
-        self.lst_blacklist = ['..', 'mailto']
+        self.lst_blacklist = ['..', 'mailto','cdn','token']
 
     def crawl(self):
         # process urls one by one until we exhaust the queue
@@ -67,8 +71,9 @@ class PyWebCrawl:
             strip_base = base.replace("www.", "")
             base_url = "{0.scheme}://{0.netloc}".format(parts)
             path = url[: url.rfind("/") + 1] if "/" in parts.path else url
+            # check if ending with a /, if not, add a /
 
-            # create a beutiful soup for the html document
+            # create a beautiful soup for the html document
             soup = BeautifulSoup(response.text, "lxml")
 
             for link in soup.find_all("a"):
